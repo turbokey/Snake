@@ -1,0 +1,467 @@
+﻿Version=6.5
+NumberOfModules=0
+Build1=Default,com.serogen.snake
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'End of default text.~\n~
+IconFile=
+NumberOfFiles=5
+File1=High.txt
+File2=Me.bal
+File3=mort08.wav
+File4=ping.wav
+File5=rattle.wav
+NumberOfLibraries=3
+Library1=audio
+Library2=core
+Library3=randomaccessfile
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: Snake
+	#VersionCode: 2
+	#VersionName: 1.1
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: portrait
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: true
+	#IncludeTitle: False
+#End Region
+
+Sub Process_Globals
+
+
+End Sub
+
+Sub Globals
+    Dim Картинка As Canvas
+    Dim x(641), y(641) As Int
+    Dim xХвоста, yХвоста As Int
+    Dim ДлинаЗмейки As Int = 1
+    Dim Вверх, Вниз, Влево, Вправо As Boolean
+    Dim ПервыйРаз = True
+    Dim i2 As Int
+    Dim xЕды As Int
+    Dim yЕды As Int
+    Dim lb1 As Label
+    Dim lb2 As Label
+    Dim lb3 As Label
+    Dim lb4 As Label
+    Dim lbgo As Label
+    Dim lbpress As Label
+    Dim Счёт As Int
+    Dim Рекорд As Int
+    Dim Шрифт As Int
+    Dim Шрифт2 As Int
+    Dim Поправка As Int
+	Dim PictureBox1 As ImageView
+	Dim Image As ImageView
+	Dim Button1 As Button
+	Dim Canvas As Canvas
+	Dim Timer2 As Timer
+	Dim Timer1 As Timer
+	Dim Timer3 As Timer
+	Dim Dx, Dy As Float
+	Dim ПроверкаY As Boolean=False
+	Dim Направление As String
+	Dim ШагFL As Float=100%x/22
+	Dim Шаг As Int
+	Dim Шаг1 As Int=100%x/22
+	Dim Шаг2 As Int=Round(100%x/22)
+	Dim Loose As Boolean
+	Dim MP As MediaPlayer
+	Dim Игра As Boolean=False
+	Dim Можно As Boolean=True
+	Dim Pause As ImageView
+	Dim Пауза As Boolean=False
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+If ШагFL>Шаг1 Then Шаг=Шаг1 Else Шаг=Шаг2
+If FirstTime=True Then
+Activity.LoadLayout("Me")
+If Activity.Width  > 700 And Activity.Width  <800 Then 
+Шрифт = Activity.Width/24 
+Else 
+If Activity.Width  >750 Then 
+Шрифт  = Activity.Width/22 
+Else 
+Шрифт  = Activity.Width/26
+End If
+End If
+        Вверх = True
+        Load_high
+            lb2.Top = 0
+            lb2.Left = 0
+            lb2.Text = "Score:"
+			lb2.TextSize=Шрифт
+			lb2.Width=25%x
+			lb2.Height=100%x/22*4
+            lb2.Visible = False
+			
+            lb1.Top = 0
+            lb1.Left = lb2.Width
+            lb1.Text = "0"
+			lb1.TextSize=Шрифт
+			lb1.Width=15%x
+			lb1.Height=100%x/22*4
+            lb1.Visible = False
+
+            lb3.Top = 0
+            lb3.Left = lb1.Width+lb2.Width+5%x
+            lb3.Text = "Best:"
+			lb3.TextSize=Шрифт
+			lb3.Width=33%x
+			lb3.Height=100%x/22*4
+            lb3.Visible = False
+
+
+            lb4.Top = 0
+            lb4.Left = lb1.Width+lb2.Width+5%x+lb3.Width
+            lb4.Text = Рекорд
+			lb4.TextSize=Шрифт
+			lb4.Width=100%x-(lb1.Width+lb2.Width+5%x+lb3.Width)
+			lb4.Height=100%x/22*4
+            lb4.Visible = False
+
+            lbgo.Top = 100%x/22*6
+            lbgo.Left = 100%x/22
+            lbgo.Text = "GAME OVER"
+			lbgo.TextSize=Шрифт*1.5
+			lbgo.Width=100%x/22*20
+			lbgo.Height=100%x/22*6
+            lbgo.Visible = False
+			
+            lbpress.Top = 100%x/22*6
+            lbpress.Left =100%x/22 
+            lbpress.Text = "Touch the screen"
+			lbpress.TextSize=Шрифт
+			lbpress.Width=100%x/22*19
+			lbpress.Height=100%x/22*8
+            lbpress.Visible = False
+			
+		   Image.Width = 100%x
+	       Image.Height = 100%y
+		   Image.Top = 0
+	       Image.Left = 0
+			
+	       PictureBox1.Width = 100%x
+	       PictureBox1.Height = 100%x
+		   PictureBox1.Top = (100%y-PictureBox1.Height)/2
+	       PictureBox1.Left = 0
+		   
+		   Button1 .Width=75%x
+		   Button1.Height=10%y
+		   Button1.Top=55%y
+		   Button1.TextSize=Шрифт
+		   Button1.Color=Colors.RGB(127,255,0)
+		   Button1.Left=50%x-Button1.Width/2
+
+
+			Timer2.Initialize("Timer2", 3000) 
+			Timer2.Enabled=True
+			Timer3.Initialize("Timer3", 50) 
+			Timer3.Enabled=True
+			Timer1.Initialize("Timer1", 150) 
+			Timer1.Enabled=False
+			
+			Pause.Width=100%y-(((100%y-(Шаг*28))/2)+(Шаг*28))
+			Pause.Height=100%y-(((100%y-(Шаг*28))/2)+(Шаг*28))
+			Pause.Left=50%x-(100%y-(((100%y-(Шаг*28))/2)+(Шаг*28)))/2
+			Pause.Top=((100%y-(Шаг*28))/2)+(Шаг*28)
+		
+				 MP.Initialize2("MP")
+End If
+FirstTime=False
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+
+End Sub
+
+Sub Timer2_Tick
+      PictureBox1.Visible = False
+	  Image.Visible=True
+      Timer2.Enabled = False
+	  Activity.Color=Colors.RGB(143,188,139)
+	  Button1.Visible=True
+End Sub
+
+Sub Button1_click
+        Start_again
+
+							MP.Stop
+							 MP.Initialize2("MP")
+	                         MP.Load(File.DirAssets,"rattle.wav")
+                             MP.Play
+
+        'AxWindowsMediaPlayer1.URL = Application.ExecutablePath & "rattle.wav"
+        'AxWindowsMediaPlayer1.Ctlcontrols.play()
+Игра=True
+End Sub
+Sub Start_again
+
+Loose=False
+		Image.Visible=False
+
+        Вверх = True : Вниз = False : Влево = False : Вправо = False
+
+        lb1.Visible = False
+        lb2.Visible = False
+        lb3.Visible = False
+        lb4.Visible = False
+		Pause.Visible=False
+        Счёт = 0
+		
+        lb1.Text = Счёт
+
+        Load_high
+        lb4.Text = Рекорд
+
+        ДлинаЗмейки = 1
+        ПервыйРаз = True
+
+Canvas.Initialize(Activity)
+
+Dim Rect1 As Rect
+Rect1.Initialize(0,0,100%x,100%y)
+Canvas.DrawRect(Rect1,Colors.RGB(189,183,107),True, 1dip )
+
+Dim Rect1 As Rect
+Rect1.Initialize((Шаг*2),((Round(100%y/Шаг)*Шаг)-(Шаг*28))/2,(Шаг*20),((100%y-(Шаг*28))/2)+(Шаг*28))
+Canvas.DrawRect(Rect1,Colors.RGB(143,188,139),True, 1dip )
+
+	     y(0) = 100%y/2
+	     x(0) = Шаг*11
+         lbpress.Visible = True
+         lbgo.Visible = False
+
+         Button1.Visible = False
+
+End Sub
+
+Sub Activity_Touch (Action As Int, Xкас As Float, Yкас As Float)
+If Игра=True Then
+If Можно=True Then
+Xкас=Round(Xкас)
+Yкас=Round(Yкас)
+	
+Select Action
+Case 2
+If ПервыйРаз=False Then
+	If Dx<>Xкас And Dy<>Yкас Then 
+		If Xкас<Dx And (Dx-Xкас>Yкас-Dy And Dx-Xкас>Dy-Yкас) Then Направление="Left"
+		If Xкас>Dx And (Xкас-Dx>Yкас-Dy And Xкас-Dx>Dy-Yкас) Then Направление="Right"
+		If Yкас<Dy And (Dy-Yкас>Xкас-Dx And Dy-Yкас>Dx-Xкас) Then Направление="Up"
+		If Yкас>Dy And (Yкас-Dy>Xкас-Dx And Yкас-Dy>Dx-Xкас) Then Направление="Down"
+	End If
+End If
+Case 0
+If ПервыйРаз Then Timer1.Enabled = True
+End Select
+
+	Dx=Xкас
+	Dy=Yкас
+
+
+    If ДлинаЗмейки<>1 And ((Направление = "Up" And Вниз=True) Or (Направление = "Down" And Вверх=True) Or (Направление = "Left" And Вправо=True) Or (Направление = "Right" And Влево=True)) Then 
+	Шаг=100%x/22
+	Else
+	Select Направление
+    Case "Up" : Вверх = True : Вниз = False : Влево = False : Вправо = False
+    Case "Down" : Вверх = False : Вниз = True : Влево = False : Вправо = False
+    Case "Left" : Вверх = False : Вниз = False : Влево = True : Вправо = False
+    Case "Right" : Вверх = False : Вниз = False : Влево = False : Вправо = True
+	End Select
+	End If
+Можно=False
+End If
+End If
+End Sub
+
+Sub Timer1_Tick
+
+
+
+
+        lb1.Visible = True
+        lb2.Visible = True
+        lb3.Visible = True
+        lb4.Visible = True
+		Pause.Visible=True
+        lbpress.Visible = False
+        If ПервыйРаз Then
+            xХвоста = Шаг*11
+            yХвоста = 100%y/2
+            Food
+        Else
+            xХвоста = x(ДлинаЗмейки)
+            yХвоста = y(ДлинаЗмейки)
+        End If
+
+        If Влево = True Then x(0) = x(0) - Шаг
+        If Вверх = True Then y(0) = y(0) - Шаг
+        If Вправо = True Then x(0) = x(0) + Шаг
+        If Вниз = True Then y(0) = y(0) + Шаг
+
+        If ДлинаЗмейки > 4 Then
+            For i = 1 To ДлинаЗмейки
+                If x(0) = x(i) And y(0) = y(i) Then Lose
+            Next
+        End If
+        For i = ДлинаЗмейки To 1 Step -1
+            i2 = i - 1
+            x(i) = x(i2)
+            y(i) = y(i2)
+        Next
+		
+				       
+		
+'        Графика.FillRectangle(Brushes.DarkSeaGreen, xХвоста, yХвоста, 20, 20)
+If x(0) < (Шаг*2)Or y(0) < ((Round(100%y/Шаг)*Шаг)-(Шаг*28))/2 Or x(0) > (Шаг*19) Or y(0) > ((100%y-(Шаг*28))/2)+(Шаг*27) Then Lose
+
+
+If Loose=False Then
+
+
+
+
+Dim Rect1 As Rect
+Rect1.Initialize(xХвоста,yХвоста,xХвоста+Шаг,yХвоста+Шаг)
+Canvas.DrawRect(Rect1,Colors.RGB(143,188,139),True, 1dip )
+'Canvas.DrawCircle(xХвоста,yХвоста,100%x/22/2,Colors.RGB(143,188,139),True, 5dip )
+Activity.Invalidate
+'        Графика.FillRectangle(Brushes.Black, x(0) + 1, y(0) + 1, 18, 18)
+Dim Rect2 As Rect
+Rect2.Initialize(x(0)+Шаг/720 ,y(0)+Шаг/720,x(0)+Шаг/720+Шаг-Шаг/360,y(0)+Шаг/720+Шаг-Шаг/360)
+Canvas.DrawRect(Rect2,Colors.Black,True, 1dip )
+'Canvas.DrawCircle(x(0),y(0),100%x/22/2,Colors.Black,True, 5dip )
+Activity.Invalidate
+End If
+
+Dim Rect1 As Rect
+
+Rect1.Initialize(0,0, Шаг,Шаг)
+Canvas.DrawRect(Rect1,Colors.RGB(189,183,107),True, 1dip )
+
+'        Графика.FillRectangle(Brushes.DarkKhaki, 0, 0, 20, 20)
+
+'
+'        Графика.FillRectangle(Brushes.DarkKhaki, 0, 0, 20, 440)
+
+'        Графика.FillRectangle(Brushes.DarkKhaki, 0, 0, 440, 40)
+
+'        Графика.FillRectangle(Brushes.DarkKhaki, 0, 420, 440, 20)
+
+'        Графика.FillRectangle(Brushes.DarkKhaki, 420, 0, 20, 440)
+
+
+        ПервыйРаз = False
+
+        If ((x(0)+100%x/44 > xЕды) And (x(0)-100%x/44<xЕды)) And ((y(0)+100%x/44 > yЕды) And (y(0)-100%x/44<yЕды)) Then nyam
+
+    End Sub
+	
+Sub Lose
+Игра =False
+        Save_high
+        Load_high
+        lbgo.Visible = True
+        Button1.Visible = True
+		Pause.Visible=False
+        Button1.Enabled = True
+        Timer1.Enabled = False
+		Loose=True
+		
+		MP.Stop
+		MP.Initialize2("MP")
+        MP.Load(File.DirAssets,"ping.wav")
+        MP.Play
+		
+'        AxWindowsMediaPlayer1.URL = Application.ExecutablePath & "ping.wav"
+'        AxWindowsMediaPlayer1.Ctlcontrols.play()
+End Sub
+
+Sub nyam
+        ДлинаЗмейки = ДлинаЗмейки+1
+        Счёт =Счёт+ 1
+        lb1.Text = Счёт
+Dim Rect1 As Rect
+Rect1.Initialize(x(0),y(0),x(0)+Шаг,y(0)+Шаг)
+Canvas.DrawRect(Rect1,Colors.RGB(143,188,139),True, 1dip )
+
+Dim Rect1 As Rect
+Rect1.Initialize(x(0)  + Шаг/720,y(0) + Шаг/720,x(0)  + Шаг/720+Шаг-Шаг/360,y(0) + Шаг/720+Шаг-Шаг/360)
+Canvas.DrawRect(Rect1,Colors.Black,True, 1dip )
+Activity.Invalidate
+
+        'Графика.FillRectangle(Brushes.DarkSeaGreen, xЕды, yЕды, 20, 20)
+        'Графика.FillRectangle(Brushes.Black, xЕды + 1, yЕды + 1, 18, 18)
+
+		MP.Stop
+		MP.Initialize2("MP")
+        MP.Load(File.DirAssets,"mort08.wav")
+        MP.Play
+
+
+'        AxWindowsMediaPlayer1.URL = Application.ExecutablePath & "mort08.wav"
+'        AxWindowsMediaPlayer1.Ctlcontrols.play()
+        Food
+End Sub
+
+Sub Food
+        xЕды =Шаг*(Round(Rnd(1,22)))
+        yЕды =100%y- Шаг*(Round(Rnd(1,50)))
+		
+If xЕды < (Шаг*2)Or yЕды < ((100%y-(Шаг*28))/2) Or xЕды > (Шаг*19) Or yЕды >((100%y-(Шаг*28))/2)+ (Шаг*27) Then Food
+
+        For i = 0 To ДлинаЗмейки
+            If((x(i)+100%x/44 > xЕды) And (x(i)-100%x/44<xЕды)) And ((y(i)+100%x/44 > yЕды) And (y(i)-100%x/44<yЕды)) Then Food
+        Next
+	
+Canvas.DrawCircle(xЕды+Шаг/2,yЕды+Шаг/2,Шаг/2,Colors.RGB(139,0,0),True, 5dip )
+
+
+Activity.Invalidate
+        'Графика.FillEllipse(Brushes.DarkRed, xЕды, yЕды, 20, 20)
+End Sub
+
+Sub Load_high
+       Dim TextReader1 As TextReader
+	   If File.Exists(File.DirDefaultExternal,"High.txt")=False Then
+	   File.Copy(File.DirAssets,"High.txt",File.DirDefaultExternal,"High.txt")
+	   End If
+	   TextReader1.Initialize(File.OpenInput(File.DirDefaultExternal, "High.txt"))
+	   Рекорд=TextReader1.ReadLine
+End Sub
+Sub Save_high
+	 Dim TextWriter1 As TextWriter
+    If Счёт > Рекорд Then
+	   TextWriter1.Initialize(File.OpenOutput(File.DirDefaultExternal,"High.txt", False))
+	   TextWriter1.WriteLine(Счёт)
+	   TextWriter1.Close
+    End If
+End Sub
+
+
+Sub Pause_Click
+If Пауза=False Then
+	Timer1.Enabled=False
+	lbpress.Visible=True
+	lbpress.text="PAUSE"
+	Пауза=Not(Пауза)
+Else
+	Timer1.Enabled=True
+	lbpress.Visible=False
+	lbpress.text="Touch the screen"
+	Пауза=Not(Пауза)
+End If
+End Sub
+
+Sub Timer3_Tick
+Можно=True
+End Sub

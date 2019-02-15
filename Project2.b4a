@@ -1,0 +1,286 @@
+﻿Version=2.5
+IconFile=
+NumberOfModules=0
+Package=com.Serogen.Game_15
+DoNotOverwriteManifest=False
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'End of default text.~\n~
+UserTypesHint=
+NumberOfFiles=1
+File1=Form.bal
+NumberOfLibraries=3
+Library1=audio
+Library2=core
+Library3=phone
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: Пятнашки
+	#VersionCode: 1
+	#VersionName: 
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: portrait
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: False
+	#IncludeTitle: True
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+
+End Sub
+
+Sub Globals
+Dim cvsActivity As Canvas
+Dim CH = 25%x, CW = 25%x
+Dim stp(5, 5) As Int
+Dim pole(5, 5) As Int ' игpoвoe пoлe
+Dim ex As Int, ey As Int ' кoopдинaты пycтoй клeтки
+Public Время As Long
+Dim Лучший_счёт(3) As Int
+Dim имя_имя As String
+Dim имя(3) As String
+Dim q As Int
+Public Уровень As Int
+Dim i As Int, j As Int
+Dim Finishbool As Boolean
+Dim cx As Int,cy As Int
+Dim Label1 As Label
+Dim Label2 As Label
+Dim MP As MediaPlayer
+Dim Timer As Timer
+Dim Bool As Boolean=True
+Dim Image As ImageView
+Dim Bitmap As Bitmap
+
+
+
+End Sub
+Sub Activity_Create(FirstTime As Boolean)
+Activity.LoadLayout("Form")
+'Image.Left=0dip
+'Image.Width=100%x
+'Image.Height=100%x
+'Image.Top=(100%y-Image.Height)/2
+'Image.Visible=True
+cvsActivity.Initialize(Activity)
+Bitmap.Initialize(File.DirAssets, "serogen.jpg")
+Dim Rect As Rect
+Rect.Initialize(0dip,(100%y-100%x)/2,100%x,100%x)
+cvsActivity.DrawBitmap(Bitmap,Null,Rect)
+    Timer.Initialize("Timer", 2000) ' 1000 = 1 second
+    Timer.Enabled = True
+     newGame
+cvsActivity.Initialize(Activity)
+Bitmap.Initialize(File.DirAssets, "serogen.jpg")
+Dim Rect As Rect
+Rect.Initialize(0dip,(100%y-100%x)/2,100%x,120%x)
+cvsActivity.DrawBitmap(Bitmap,Null,Rect)
+	 MP.Initialize2("MP")
+	 MP.Load(File.DirAssets,"chimes.wav")
+End Sub
+
+Sub Activity_Resume
+
+
+'Dim rect1 As Rect
+'rect1.Initialize(50dip, 40dip, 150dip, 100dip)
+'cvsActivity.DrawRect(rect1, Colors.Blue, False, 3dip)
+
+'cvsActivity.DrawCircle(50dip, 200dip, 30dip, Colors.Green, False,3dip)
+
+'cvsActivity.DrawText("Test text", 50dip, 150dip, Typeface.DEFAULT,20, Colors.Yellow, "LEFT")
+
+'cvsActivity.DrawCircle(50dip, 340dip, 30dip, Colors.Green, True,3dip)
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+
+End Sub
+
+Sub newGame
+Dim i As Int
+Dim j As Int
+            For i = 1 To 4
+                    For j = 1 To 4
+                                 stp(i, j) = (i - 1) * 4 + j
+                                 pole(i,j)=stp(i,j)
+                   Next
+            Next
+                                  stp(4, 4) = 0
+
+          mixer
+End Sub
+
+Sub ShowPole
+Dim i As Int, j As Int
+Dim X As Int, Y As Int ' x,y - кoopдинaты вывoдa тeкcтa в клeткe
+' ceткa: вepтикaльныe линии
+
+Activity.LoadLayout("Form")
+Activity.Color=Colors.RGB(0,128,0)
+
+cvsActivity.Initialize(Activity)
+
+cvsActivity.DrawText("Ходов:", 0dip, 97%y, Typeface.DEFAULT_BOLD,4.5%x, Colors.Yellow, "LEFT")
+cvsActivity.DrawText(Время, 35%x, 97%y, Typeface.DEFAULT_BOLD,4.5%x, Colors.Yellow, "CENTER")
+
+cvsActivity.DrawLine(0, 0, 0, 100%x, Colors.Yellow, 1%x)
+cvsActivity.DrawLine(25%x, 0, 25%x, 100%x, Colors.Yellow, 1%x)
+cvsActivity.DrawLine(50%x, 0, 50%x, 100%x, Colors.Yellow, 1%x)
+cvsActivity.DrawLine(75%x, 0, 75%x, 100%x, Colors.Yellow, 1%x)
+cvsActivity.DrawLine(100%x, 0, 100%x, 100%x, Colors.Yellow, 1%x)
+
+cvsActivity.DrawLine(0, 0, 100%x, 0, Colors.Yellow, 1%x)
+cvsActivity.DrawLine(0, 25%x, 100%x, 25%x, Colors.Yellow, 1%x)
+cvsActivity.DrawLine(0, 50%x, 100%x, 50%x, Colors.Yellow, 1%x)
+cvsActivity.DrawLine(0, 75%x, 100%x, 75%x, Colors.Yellow, 1%x)
+cvsActivity.DrawLine(0, 100%x, 100%x, 100%x, Colors.Yellow, 1%x)
+
+' coдepжиmoe клeтoк (цифpы фишeк)
+            For i = 1 To 4
+            Y = (i - 1) * CH + 14%x
+                For j = 1 To 4
+                X = (j - 1) * CW +  11%x
+                    Select pole(i, j)
+                            Case 0
+                            Case 1,2,3,4,5,6,7,8,9
+                                   'CurrentX = X
+                                   'CurrentY = Y
+                                   'Print " " + Format(pole(i, j))
+								   cvsActivity.DrawText(" "&pole(i, j), X, Y, Typeface.DEFAULT_BOLD,4%x, Colors.Yellow,"CENTER")
+                             Case 10,11,12,13,14, 15
+                                    'CurrentX = X
+                                    'CurrentY = Y
+                                     'Print Format(pole(i, j))
+									 cvsActivity.DrawText(pole(i, j), X, Y, Typeface.DEFAULT_BOLD,4%x, Colors.Yellow, "CENTER")
+                    End Select
+                 Next
+            Next
+
+End Sub
+Sub mixer
+
+Dim x1 As Int
+Dim y1 As Int 'кoopдинaты пycтoй фишки
+Dim x2 As Int
+Dim y2 As Int ' кoopдинaты фишки пepemeщaemoй нa mecтo пycтoй
+Dim d As Int    ' нaпpaвлeниe пepemeщeния oтнocитeльнo пycтoй фишки
+
+                  x1 = 4
+                  y1 = 4
+    For i = 1 To 4 * 4*10
+             'Do Until (x2 >= 1) AND (x2 <= 4) AND (y2 >= 1) AND (y2 <= 4)
+                   y2 = y1
+				   x2 = x1
+                   d = Rnd(0, 4) + 1
+        Select d
+                        Case 1 
+						If (x2+1>4) Then x2=x2-1
+						x2 = x2 + 1
+						
+                        Case 2
+						If (x2-1<1) Then x2=x2+1
+						x2 = x2 - 1
+						
+                        Case 3
+						If (y2+1>4) Then y2=y2-1
+						y2 = y2 + 1
+						
+                        Case 4
+						If (y2-1<1) Then y2=y2+1
+						y2 = y2 - 1
+						
+        End Select
+                  'Loop 
+                          pole(y1, x1) = pole(y2, x2)
+                          pole(y2, x2) = 0
+                          x1 = x2
+                          y1 = y2
+        Next
+                            ex = x1
+                            ey = y1
+End Sub
+
+Sub Activity_Touch (Action As Int, X As Float, Y As Float)
+Dim cx As Int, cy As Int ' кoopдинaты клeтки
+' пpeoбpaзyem щeлчoк в кoopдинaты клeтки
+                         cx = X / CW+1
+                         cy = Y / CH+1
+						 If cy=5 Then cy=4
+						 fMove
+						 Finish
+                                  If Finishbool = True Then
+                                            'If Уровень = 10 Then
+                                             'имя_имя = InputBox("Цeль дocтигнyтa! Введите имя:", "Игра 15")
+                                             'Проверяем_рекорд
+                                            'Form2.Show
+                                            'End If
+											
+											i=Msgbox2("Вы выиграли всего за "&Время&" ходов! Начать сначала?", "Победа!","Да", "", "Нет", LoadBitmap(File.DirAssets, "win.gif"))
+											If i=-1 Then
+												Время=0
+												newGame
+												ShowPole
+											End If
+												If i=-2 Then
+												Activity.Finish
+											End If
+                                  End If
+End Sub
+Sub fMove
+
+' ex, cy - клeткa, в кoтopoй игpoк cдeлaл щeлчoк
+
+' пpoвepкa вoзmoжнocти oбmeнa
+
+    If (Abs(cx - ex) = 1) AND (cy - ey = 0) OR (Abs(cy - ey) = 1) AND (cx - ex = 0) Then
+                            pole(ey, ex) = pole(cy, cx)
+                            pole(cy, cx) = 0
+                            ex = cx
+                            ey = cy
+                            Время = Время + 1
+                            'Плеер.Command = "play"
+                            'Плеер.Command = "prev"
+							MP.Stop
+							 MP.Initialize2("MP")
+	                         MP.Load(File.DirAssets,"chimes.wav")
+                             MP.Play
+							 
+
+								   ShowPole
+    End If
+End Sub
+
+Sub Finish
+Dim row As Int
+Dim col As Int
+                           row = 1
+                           col = 1
+                           Finishbool = True
+                    For i = 1 To (4 * 4 - 1)
+                            If pole(row, col) <> i Then 
+							Finishbool = False
+							Exit
+							Else:
+                            If col < 4 Then
+                                    col = col + 1
+                            Else
+                                    col = 1
+                                    row = row + 1
+                            End If
+					End If
+				    Next
+End Sub
+
+Sub Timer_Tick
+
+Timer.Enabled=False
+'Image.Height=0dip
+'Image.Width=0dip
+Activity.Color=Colors.RGB(0,128,0)
+ShowPole
+End Sub
